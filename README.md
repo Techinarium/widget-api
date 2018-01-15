@@ -2,7 +2,7 @@
 
 Widgets require three main things in order to work:
   - A `main` function that sets up the widget
-  - A `widget.config()` that sets at least the `apiVersion` (currently `v1`)
+  - A `widget.config()` call that sets at least the `apiVersion` (currently `v1`)
   - At least one layout defined with `widget.layout()`
 
 # Widget API
@@ -178,11 +178,8 @@ widget.layout.transition('slideUp', (oldRoot, newRoot) => {
 widget.setLayout('layout2', 'slideUp');
 ```
 
-### widget.userOptions(name)
-  returns the current value of a given user option
-
-### `widget.location` (requires permissions?)
-  A function that returns the user's current location.
+### `widget.userOptions(name)`
+  Returns the current value of the userOption with a matching name
 
 ### `widget.assets`
   Used for pulling pre-stored assets into your widget layouts. These assets are uploaded by the widget author when the widget is created. If external files are required, the `widget.http` API should be used to fetch them.
@@ -214,13 +211,28 @@ widget.assets.get(assetName)
 
 # Examples
 
+## Widget Example (Hello World)
+
+```js
+function main(widget) {
+  widget.config({ apiVersion: 'v1' });
+
+  widget.layout({
+    name: 'main',
+    size: '2x1',
+    default: true,
+    render: () => {
+      return widget.element.text('Hello, world!');
+    }
+  });
+}
+```
+
 ## Widget Example (Sticky Note)
 
 ```js
 function main(widget) {
-  widget.config({
-    apiVersion: 'v1',
-  });
+  widget.config({ apiVersion: 'v1' });
 
   const { textbox } = widget.element;
 
@@ -261,12 +273,6 @@ function main(widget) {
         label: 'ZIP Code',
         type: 'text',
         default: '90210',
-      },
-      {
-        name: 'useLocation',
-        label: 'Use My Location',
-        type: 'checkbox',
-        default: false,
       },
       {
         name: 'refreshInterval',
@@ -349,48 +355,30 @@ function main(widget) {
     // This function will run, then the display will be updated.
     // Anything that's going to change what's displayed should go here.
 
-    // if (widget.userOptions.useLocation) / if (widget.userOptions['useLocation'])
+    const zip = widget.userOptions('zipCode');
+    
+    return widget.http.get(`http://samples.openweathermap.org/data/2.5/weather?zip=${zip},us&appid=b6907d289e10d714a6e88b30761fae22`)
+      .then(weather => {
+        return new Promise(resolve => {
+          const { temp } = weather.main; // in Kelvin
+          const { icon } = weather.weather[0];
 
-    let zip;
+          const c = temp - 273.15;
+          const f = c * 1.8 + 32;
 
-    if (widget.userOptions('useLocation')) {
-      return widget.location()
-        .then(loc => widget.http.get(`http://samples.openweathermap.org/data/2.5/weather?zip=${loc.zip},us&appid=b6907d289e10d714a6e88b30761fae22`))
-        .then(weather => {
-          return new Promise(resolve => {
-            const { temp } = weather.main;
-
-            widget.data.set({
-              celsius: temp,
-              fahrenheit: temp
-            });
-
-            return resolve();
+          widget.data.set({
+            weatherIcon: `http://openweathermap.org/img/w/${icon}.png`,
+            celsius: c,
+            fahrenheit: f
           });
-        })
-        .catch(err => {
-          widget.data.set('errorMessage', err.message);
-          widget.layout.set('error');
-        });
-    } else {
-      return widget.http.get(`http://samples.openweathermap.org/data/2.5/weather?zip=${widget.userOptions('zipCode')},us&appid=b6907d289e10d714a6e88b30761fae22`)
-        .then(weather => {
-          return new Promise(resolve => {
-            const { temp } = weather.main;
 
-            widget.data.set({
-              celsius: temp,
-              fahrenheit: temp
-            });
-
-            return resolve();
-          });
-        })
-        .catch(err => {
-          widget.data.set('errorMessage', err.message);
-          widget.layout.set('error');
+          return resolve();
         });
-    }
+      })
+      .catch(err => {
+        widget.data.set('errorMessage', err.message);
+        widget.layout.set('error');
+      });
   });
 
   onUnload(() => {
