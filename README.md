@@ -211,7 +211,7 @@ widget.assets.get(assetName)
 
 # Examples
 
-## Widget Example (Hello World)
+## Hello World
 
 ```js
 function main(widget) {
@@ -228,7 +228,7 @@ function main(widget) {
 }
 ```
 
-## Widget Example (Sticky Note)
+## Sticky Note
 
 ```js
 function main(widget) {
@@ -261,7 +261,7 @@ function main(widget) {
 }
 ```
 
-## Widget Example (Weather)
+## Weather
 
 ```js
 function main(widget) {
