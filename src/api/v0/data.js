@@ -1,6 +1,4 @@
 export default function(state) {
-
-
   function _save() {
     localStorage.setItem(`widget_${state.id}_data`, JSON.stringify(state.data))
   }
@@ -19,6 +17,8 @@ export default function(state) {
     } else if (typeof property === 'string') {
       // Take a string, return a value.
       return state.data[property]
+    } else {
+      throw new Error('data.get() takes either an array or a string as the first parameter. Received ' + (typeof parameter))
     }
   }
 

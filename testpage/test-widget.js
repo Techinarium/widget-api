@@ -2,7 +2,9 @@ console.log(Dash);
 
 const DashHook = (function() {
   function widget(api, setup) {
+    const start = Date.now();
     Dash.widget(api, setup);
+    console.log(`Initialized widget in ${Date.now() - start}ms`)
 
     // Connect to DOM element
   }
