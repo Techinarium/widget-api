@@ -4,6 +4,9 @@ var Dash = (function () {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _data (state) {
+
+  if (!state.data) state.data = {};
+
   function _save() {
     localStorage.setItem('widget_' + state.id + '_data', JSON.stringify(state.data));
   }
@@ -24,6 +27,8 @@ function _data (state) {
     } else if (typeof property === 'string') {
       // Take a string, return a value.
       return state.data[property];
+    } else {
+      throw new Error('data.get() takes either an array or a string as the first parameter. Received ' + (typeof parameter === 'undefined' ? 'undefined' : _typeof(parameter)));
     }
   }
 
@@ -54,8 +59,76 @@ function _data (state) {
 }
 
 function _element (state) {
-  function textbox() {
+  function _applyStyles(el, styles) {
+    for (var prop in styles) {
+      var name = prop.replace(/([a-z\d])([A-Z])/, '$1-$2').toLowerCase();
+
+      console.log('style: ', name, styles[prop]);
+
+      el.style[name] = styles[prop];
+    }
+  }
+
+  function _attachHandler(el, name, handler) {
+    // Handle properties starting with 'on'
+
+    var eventName = name.slice(2).toLowerCase();
+
+    console.log(eventName);
+
+    el.addEventListener(eventName, handler);
+  }
+
+  function _applyAttribute(el, name, value) {
+    switch (name.toLowerCase()) {
+      default:
+        el.setAttribute(name, value);
+        break;
+    }
+  }
+
+  function _applyProps(el, props) {
+    for (var key in props) {
+      var k = key.toLowerCase();
+
+      if (/^on/.test(k)) {
+        // Is an event handler
+        _attachHandler(el, key, props[key]);
+      } else if (k === 'styles') {
+        _applyStyles(el, props[key]);
+      } else {
+        // Treat as a regular attribute.
+        _applyAttribute(el, key, props[key]);
+      }
+    }
+  }
+
+  function _el(tag, props) {
+    // Create DOM nodes.
+    var el = document.createElement(tag);
+    if (props) {
+      _applyProps(el, props);
+    }
+    return el;
+  }
+
+  function textbox(props, children) {
     console.log('Instantiating a textbox element');
+    var el = _el('textarea');
+
+    _applyStyles(el, {
+      position: 'relative',
+      border: 0,
+      resize: 'none'
+    });
+
+    _applyProps(el, props);
+
+    if (typeof children === 'string') {
+      el.value = children;
+    }
+
+    return el;
   }
 
   function text() {
@@ -68,11 +141,37 @@ function _element (state) {
   };
 }
 
-function _layout () {
-  function layout(conf) {
-    console.log('Creating layout with', conf);
+var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-    console.log('Rendering view', conf.render());
+function _layout (state) {
+
+  if (!state.layouts) state.layouts = [];
+
+  function layout(conf) {
+    // Validate
+    if ((typeof conf === 'undefined' ? 'undefined' : _typeof$1(conf)) === 'object' && !Array.isArray(conf)) {
+      // It's the right type of thing. Make sure it has the right properties.
+
+      if (typeof conf.name !== 'string') {
+        // name must exist and be a string
+      }
+
+      if (typeof conf.size !== 'string' && !Array.isArray(conf.size)) {
+        // size must be a string or array
+      }
+
+      if (typeof conf.render !== 'function') {
+        // must have a render function
+      }
+
+      state.layouts.push(conf); // Everything checks out
+    } else {
+      if (!conf) {
+        throw new Error('api.layout() was called without any layout object.');
+      } else {
+        throw new Error('api.layout() takes a layout object as the first parameter. Received ' + (typeof conf === 'undefined' ? 'undefined' : _typeof$1(conf)));
+      }
+    }
   }
 
   function setLayout(name, transition) {
@@ -99,13 +198,22 @@ function v0 (id) {
       setLayout = _layout2.setLayout;
 
   return {
-    get dom() {
-      return state.dom;
+    private: {
+      // This is where the internal lifecycle triggers and things might go
+      // Stuff that's used by Dash behind the scenes
+      get state() {
+        return state;
+      }
     },
-    data: data,
-    element: element,
-    layout: layout,
-    setLayout: setLayout
+    public: {
+      get dom() {
+        return state.dom;
+      },
+      data: data,
+      element: element,
+      layout: layout,
+      setLayout: setLayout
+    }
   };
 }
 
@@ -135,11 +243,18 @@ var main = (function () {
       throw new Error('Second parameter should be a function that sets up the widget: function(widget) { ... }');
     }
 
-    var API = APIs[version];
-
     // The API is called as a function to create a brand new copy for each widget.
     // Each widget will have an ID from the database - for now using 123
-    setupFunction.call(null, new API('123'));
+    var api = new APIs[version]('123');
+
+    // TODO: Make the private portion available to the behind-the-scenes dashboard code
+
+    // Send off the public portion to the caller.
+    setupFunction.call(null, api.public);
+
+    // HACK: Do this better
+    var el = api.private.state.layouts[0].render();
+    return el;
   }
 
   return { widget: widget };

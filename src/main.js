@@ -30,8 +30,14 @@ export default (function() {
     // Each widget will have an ID from the database - for now using 123
     const api = new (APIs[version])('123')
 
+    // TODO: Make the private portion available to the behind-the-scenes dashboard code
+
     // Send off the public portion to the caller.
     setupFunction.call(null, api.public)
+
+    // HACK: Do this better
+    const el = api.private.state.layouts[0].render()
+    return el;
   }
 
   return { widget }

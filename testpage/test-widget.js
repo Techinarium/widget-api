@@ -3,18 +3,19 @@ console.log(Dash);
 const DashHook = (function() {
   function widget(api, setup) {
     const start = Date.now();
-    Dash.widget(api, setup);
+    const w = Dash.widget(api, setup);
     console.log(`Initialized widget in ${Date.now() - start}ms`)
 
+    console.log(w)
+
     // Connect to DOM element
+    document.getElementById('widget').appendChild(w)
   }
 
   return { widget }
 })();
 
 DashHook.widget('v0', (widget) => {
-
-  console.log(widget)
 
   widget.layout({
     name: 'main',
@@ -27,10 +28,12 @@ DashHook.widget('v0', (widget) => {
         styles: {
           width: '100%',
           height: '100%',
+          padding: '1em',
           backgroundColor: '#F7E380',
         },
-        onInput: (e) => {
+        onInput: function() {
           widget.data.set('noteContent', this.value);
+          console.log(this.value)
         },
       }, noteContent);
     }
