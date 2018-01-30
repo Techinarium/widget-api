@@ -16,6 +16,13 @@ describe('api.data', () => {
     )
   })
 
+  it('should create a data property on the state object if one does not exist', () => {
+    const state = { id: '1' }
+    const data = _data(state)
+
+    expect(state.hasOwnProperty('data')).toBe(true)
+  })
+
   describe('.get', () => {
     let state;
     let data;

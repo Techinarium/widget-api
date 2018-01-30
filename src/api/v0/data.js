@@ -1,4 +1,7 @@
 export default function(state) {
+
+  if (!state.data) state.data = {}
+
   function _save() {
     localStorage.setItem(`widget_${state.id}_data`, JSON.stringify(state.data))
   }

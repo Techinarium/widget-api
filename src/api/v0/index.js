@@ -18,12 +18,18 @@ export default function(id) {
   const { layout, setLayout } = _layout(state)
 
   return {
-    get dom() {
-      return state.dom
+    private: {
+      // This is where the internal lifecycle triggers and things might go
+      // Stuff that's used by Dash behind the scenes
     },
-    data,
-    element,
-    layout,
-    setLayout,
+    public: {
+      get dom() {
+        return state.dom
+      },
+      data,
+      element,
+      layout,
+      setLayout,
+    },
   }
 }

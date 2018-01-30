@@ -26,11 +26,12 @@ export default (function() {
       throw new Error('Second parameter should be a function that sets up the widget: function(widget) { ... }')
     }
 
-    const API = APIs[version]
-
     // The API is called as a function to create a brand new copy for each widget.
     // Each widget will have an ID from the database - for now using 123
-    setupFunction.call(null, new API('123'))
+    const api = new (APIs[version])('123')
+
+    // Send off the public portion to the caller.
+    setupFunction.call(null, api.public)
   }
 
   return { widget }
