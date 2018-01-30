@@ -21,6 +21,9 @@ export default function(id) {
     private: {
       // This is where the internal lifecycle triggers and things might go
       // Stuff that's used by Dash behind the scenes
+      get state() {
+        return state
+      }
     },
     public: {
       get dom() {
