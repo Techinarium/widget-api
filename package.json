@@ -1,0 +1,39 @@
+{
+  "name": "dash-widget-api",
+  "version": "0.0.1",
+  "description": "JavaScript Widget API for Dash",
+  "main": "index.js",
+  "scripts": {
+    "bundle": "webpack",
+    "test": "jest"
+  },
+  "jest": {
+    "setupFiles": [
+      "jest-localstorage-mock"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/techinarium/widget-api.git"
+  },
+  "author": "Tony McCoy <tony@ratwizard.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/techinarium/widget-api/issues"
+  },
+  "homepage": "https://github.com/techinarium/widget-api#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-jest": "^22.1.0",
+    "babel-preset-env": "^1.6.1",
+    "jest": "^22.1.4",
+    "jest-localstorage-mock": "^2.2.0",
+    "regenerator-runtime": "^0.11.1",
+    "rollup": "^0.55.1",
+    "rollup-plugin-babel": "^3.0.3",
+    "webpack": "^3.10.0"
+  },
+  "dependencies": {
+    "babel-loader": "^7.1.2"
+  }
+}
