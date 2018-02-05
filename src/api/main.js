@@ -1,9 +1,26 @@
-import v0 from './api/v0/index.js'
+import v0 from './v0/index.js'
+import _events from './v0/events.js'
 
+const APIs = {
+  'v0': v0,
+}
+
+/*
+
+We want to:
+- Load a widget and its code from the database
+- Execute the widget's code, which sets up the widget
+- Hook the widget setup and restore any saved state
+- Create a grid element for the widget
+- run the widget's setLayout function, which
+  calls render() on whichever layout is being set.
+- Take the result of render() and attach to the grid element
+*/
+
+// The public Dash.* API globally available to Dash developers.
 export default (function() {
-  const APIs = {
-    'v0': v0,
-  }
+
+  const events = _events()
 
   function widget(apiVersion, setupFunction) {
     let version
@@ -28,17 +45,22 @@ export default (function() {
 
     // The API is called as a function to create a brand new copy for each widget.
     // Each widget will have an ID from the database - for now using 123
-    const api = new (APIs[version])('123')
+    const api = new (APIs[version])()
 
     // TODO: Make the private portion available to the behind-the-scenes dashboard code
 
     // Send off the public portion to the caller.
     setupFunction.call(null, api.public)
 
-    // HACK: Do this better
-    const el = api.private.state.layouts[0].render()
-    return el;
+    events.emit('widgetCreated', api.private)
   }
 
-  return { widget }
+  return {
+    private: {
+      on(event, func) {
+        events.on(event, func)
+      }
+    },
+    public: { widget }
+  }
 })()

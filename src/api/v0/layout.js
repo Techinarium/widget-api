@@ -32,6 +32,8 @@ export default function(state) {
 
   function setLayout(name, transition) {
     console.log('Setting layout to ' + name)
+
+    // Render the layout for the current size, save it as state.dom and append it to state.root
   }
 
   return { layout, setLayout }

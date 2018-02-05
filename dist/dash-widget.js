@@ -1,4 +1,4 @@
-var Dash = (function () {
+(function () {
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -176,24 +176,57 @@ function _layout (state) {
 
   function setLayout(name, transition) {
     console.log('Setting layout to ' + name);
+
+    // Render the layout for the current size, save it as state.dom and append it to state.root
   }
 
   return { layout: layout, setLayout: setLayout };
 }
 
-function v0 (id) {
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function events() {
+  var listeners = {};
+
+  return {
+    on: function on(event, func) {
+      if (!listeners[event]) {
+        listeners[event] = [];
+      }
+
+      listeners[event].push(func);
+    },
+    emit: function emit(event) {
+      for (var _len = arguments.length, data = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        data[_key - 1] = arguments[_key];
+      }
+
+      if (listeners[event]) {
+        listeners[event].forEach(function (func) {
+          return func.apply(undefined, _toConsumableArray(data));
+        });
+      }
+    }
+  };
+}
+
+function v0 () {
   // Mutable state object shared by the API functions
   var state = {
-    id: id,
-    dom: null,
-    data: {}
+    dom: null, // Root node resulting from layout.render()
+    root: null, // Container that 'dom' gets attached to
+    size: null,
+    data: {},
+    layouts: []
+  };
 
-    // Rollup doesn't like the word 'data' alone as a function name,
-    // so these all have an underscore prepended.
-  };var data = _data(state);
-  var element = _element(state);
+  var events$$1 = events(state);
+  // Rollup doesn't like the word 'data' alone as a function name,
+  // so these all have an underscore prepended.
+  var data = _data(state, events$$1);
+  var element = _element(state, events$$1);
 
-  var _layout2 = _layout(state),
+  var _layout2 = _layout(state, events$$1),
       layout = _layout2.layout,
       setLayout = _layout2.setLayout;
 
@@ -203,6 +236,19 @@ function v0 (id) {
       // Stuff that's used by Dash behind the scenes
       get state() {
         return state;
+      },
+      sizes: function sizes() {
+        return state.layouts.map(function (l) {
+          return l.size;
+        });
+      },
+      on: function on(event, func) {
+        events$$1.on(event, func);
+      },
+      init: function init(root) {
+        state.size = '2x2';
+        state.root = root;
+        // Render
       }
     },
     public: {
@@ -217,10 +263,25 @@ function v0 (id) {
   };
 }
 
-var main = (function () {
-  var APIs = {
-    'v0': v0
-  };
+var APIs = {
+  'v0': v0
+
+  /*
+  
+  We want to:
+  - Load a widget and its code from the database
+  - Execute the widget's code, which sets up the widget
+  - Hook the widget setup and restore any saved state
+  - Create a grid element for the widget
+  - run the widget's setLayout function, which
+    calls render() on whichever layout is being set.
+  - Take the result of render() and attach to the grid element
+  */
+
+  // The public Dash.* API globally available to Dash developers.
+};var Dash = (function () {
+
+  var events$$1 = events();
 
   function widget(apiVersion, setupFunction) {
     var version = void 0;
@@ -245,21 +306,34 @@ var main = (function () {
 
     // The API is called as a function to create a brand new copy for each widget.
     // Each widget will have an ID from the database - for now using 123
-    var api = new APIs[version]('123');
+    var api = new APIs[version]();
 
     // TODO: Make the private portion available to the behind-the-scenes dashboard code
 
     // Send off the public portion to the caller.
     setupFunction.call(null, api.public);
 
-    // HACK: Do this better
-    var el = api.private.state.layouts[0].render();
-    return el;
+    events$$1.emit('widgetCreated', api.private);
   }
 
-  return { widget: widget };
+  return {
+    private: {
+      on: function on(event, func) {
+        events$$1.on(event, func);
+      }
+    },
+    public: { widget: widget }
+  };
 })();
 
-return main;
+window.Dash = Dash.public;
+var on = Dash.private.on;
+
+
+on('widgetCreated', function (widget) {
+  console.log('created', widget);
+  var el = document.getElementById('widget');
+  el.appendChild(widget.state.layouts[0].render());
+});
 
 }());

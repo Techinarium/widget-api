@@ -1,7 +1,7 @@
 import babel from 'rollup-plugin-babel';
 
 export default {
-  input: './src/main.js',
+  input: './src/dash-bootstrap.js',
   plugins: [
     babel()
   ],
