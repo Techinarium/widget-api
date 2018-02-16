@@ -4,6 +4,5 @@ export default {
   entry: './src/main.js',
   plugins: [ babel() ],
   dest: './dist/widget-api.js',
-  format: 'iife',
-  moduleName: 'Dash',
+  format: 'cjs'
 }
