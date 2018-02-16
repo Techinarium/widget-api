@@ -1,10 +1,10 @@
 {
-  "name": "dash-widget-api",
+  "name": "widget-api",
   "version": "0.0.1",
   "description": "JavaScript Widget API for Dash",
-  "main": "index.js",
+  "main": "dist/widget-api.js",
   "scripts": {
-    "bundle": "webpack",
+    "bundle": "rollup -c",
     "test": "jest",
     "test:verbose": "jest --verbose"
   },
@@ -32,9 +32,8 @@
     "regenerator-runtime": "^0.11.1",
     "rollup": "^0.55.1",
     "rollup-plugin-babel": "^3.0.3",
-    "webpack": "^3.10.0"
-  },
-  "dependencies": {
+    "webpack": "^3.10.0",
     "babel-loader": "^7.1.2"
-  }
+  },
+  "dependencies": {}
 }

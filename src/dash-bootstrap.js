@@ -1,4 +1,4 @@
-import Dash from './api/main.js'
+import Dash from './main.js'
 
 window.Dash = Dash.public
 const { on } = Dash.private

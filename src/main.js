@@ -1,5 +1,5 @@
-import v0 from './v0/index.js'
-import _events from './v0/events.js'
+import v0 from './api/v0/index.js'
+import _events from './api/v0/events.js'
 
 const APIs = {
   'v0': v0,

@@ -1,9 +1,9 @@
-(function () {
+var Dash = (function () {
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-function _data (state) {
+var _data = function (state) {
 
   if (!state.data) state.data = {};
 
@@ -56,9 +56,9 @@ function _data (state) {
   }
 
   return { get: get, set: set };
-}
+};
 
-function _element (state) {
+var _element = function (state) {
   function _applyStyles(el, styles) {
     for (var prop in styles) {
       var name = prop.replace(/([a-z\d])([A-Z])/, '$1-$2').toLowerCase();
@@ -139,11 +139,11 @@ function _element (state) {
     text: text,
     textbox: textbox
   };
-}
+};
 
 var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-function _layout (state) {
+var _layout = function (state) {
 
   if (!state.layouts) state.layouts = [];
 
@@ -181,7 +181,7 @@ function _layout (state) {
   }
 
   return { layout: layout, setLayout: setLayout };
-}
+};
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -210,7 +210,7 @@ function events() {
   };
 }
 
-function v0 () {
+var v0 = function () {
   // Mutable state object shared by the API functions
   var state = {
     dom: null, // Root node resulting from layout.render()
@@ -261,7 +261,7 @@ function v0 () {
       setLayout: setLayout
     }
   };
-}
+};
 
 var APIs = {
   'v0': v0
@@ -279,7 +279,7 @@ var APIs = {
   */
 
   // The public Dash.* API globally available to Dash developers.
-};var Dash = (function () {
+};var main = (function () {
 
   var events$$1 = events();
 
@@ -326,14 +326,6 @@ var APIs = {
   };
 })();
 
-window.Dash = Dash.public;
-var on = Dash.private.on;
-
-
-on('widgetCreated', function (widget) {
-  console.log('created', widget);
-  var el = document.getElementById('widget');
-  el.appendChild(widget.state.layouts[0].render());
-});
+return main;
 
 }());
